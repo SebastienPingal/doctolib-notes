@@ -111,8 +111,19 @@ async function fetchDoctorRating(doctorName, address) {
     
     const ratingData = await response.json()
     
-    // Cache the result
-    await chrome.storage.local.set({ [`${doctorName}-${address}`]: ratingData })
+    // Try to cache the result, but don't fail if storage is not available
+    try {
+      // Check for Firefox storage API
+      if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) {
+        await browser.storage.local.set({ [`${doctorName}-${address}`]: ratingData })
+      }
+      // Check for Chrome storage API
+      else if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        await chrome.storage.local.set({ [`${doctorName}-${address}`]: ratingData })
+      }
+    } catch (storageError) {
+      console.warn('⚠️ Could not cache rating data:', storageError)
+    }
     
     return ratingData
   } catch (error) {

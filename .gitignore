@@ -10,5 +10,7 @@ config.js
 Thumbs.db 
 
 node_modules/
+dist/
 
+# Environment variables
 .env
