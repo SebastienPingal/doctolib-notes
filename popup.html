@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoctoNote</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      width: 300px;
+      padding: 15px;
+      color: #333;
+      margin: 0;
+    }
+    
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+      color: #1e3a8a;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 10px 0;
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .logo img {
+      height: 50px;
+    }
+    
+    .status {
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #f3f4f6;
+      margin: 10px 0;
+    }
+    
+    .active {
+      background-color: #d1fae5;
+      color: #064e3b;
+    }
+    
+    .inactive {
+      background-color: #fee2e2;
+      color: #7f1d1d;
+    }
+    
+    footer {
+      margin-top: 15px;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+    }
+    
+    ol {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="icons/icon48.png" alt="DoctoNote Logo">
+  </div>
+  
+  <h1>DoctoNote</h1>
+  
+  <div id="status" class="status">
+    Vérification de la page...
+  </div>
+  
+  <p>Cette extension affiche les notes Google Maps des médecins sur Doctolib.</p>
+  
+  <p>Pour utiliser DoctoNote :</p>
+  <ol>
+    <li>Visitez une page de recherche ou un profil médecin</li>
+    <li>Les notes s'afficheront automatiquement</li>
+  </ol>
+  
+  <footer>
+    Version 1.0.0 | DoctoNote
+  </footer>
+  
+  <script src="popup.js"></script>
+</body>
+</html> 

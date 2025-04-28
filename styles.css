@@ -1,0 +1,86 @@
+/* Styles communs pour tous les badges de notes */
+.doctonote-rating-badge {
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Styles spécifiques pour le badge de profil */
+#doctonote-badge {
+  max-width: 300px;
+}
+
+/* Styles pour les étoiles */
+.doctonote-stars {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+.doctonote-star-full,
+.doctonote-star-half,
+.doctonote-star-empty {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.doctonote-star-full,
+.doctonote-star-icon {
+  color: #FFD700;
+}
+
+.doctonote-star-half {
+  color: #FFD700;
+  position: relative;
+  opacity: 0.5;
+}
+
+.doctonote-star-empty {
+  color: #d1d5db;
+}
+
+.doctonote-rating-text {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 3px;
+  color: #1e3a8a;
+}
+
+.doctonote-attribution {
+  font-size: 11px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Styles pour les badges dans les résultats de recherche */
+.doctonote-search-badge {
+  margin: 8px 0;
+  padding: 6px 10px;
+  background-color: #effbff;
+  border-color: #d0eeff;
+  border-radius: 6px;
+  width: fit-content;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.doctonote-search-rating {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 14px;
+  color: #1e3a8a;
+}
+
+.doctonote-star-icon {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.doctonote-search-rating-text {
+  font-weight: 600;
+} 

@@ -1,0 +1,18 @@
+Pour compléter l'extension, vous devrez créer les icônes suivantes :
+
+1. icon16.png (16x16 pixels)
+2. icon48.png (48x48 pixels)
+3. icon128.png (128x128 pixels)
+
+Vous pouvez utiliser un outil de création d'icônes comme:
+- GIMP
+- Photoshop
+- Canva
+- Figma
+
+Une suggestion de design simple pour l'icône serait:
+- Un fond bleu clair (couleur Doctolib)
+- Une étoile dorée au centre (symbolisant les notes)
+- Les initiales "DN" pour DoctoNote
+
+Placez les icônes générées dans ce dossier 'icons/'. 
