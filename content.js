@@ -102,7 +102,7 @@ async function fetchDoctorRating(doctorName, address) {
   try {
     // Make the API call to our backend
     const response = await fetch(
-      `http://localhost:3000/api/doctor-rating?doctorName=${encodeURIComponent(doctorName)}&address=${encodeURIComponent(address)}`
+      `${doctonoteConfig.BACKEND_URL}/api/doctor-rating?doctorName=${encodeURIComponent(doctorName)}&address=${encodeURIComponent(address)}`
     )
     
     if (!response.ok) {
