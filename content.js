@@ -99,13 +99,28 @@ async function processDoctorCard(card) {
 async function fetchDoctorRating(doctorName, address) {
   console.log(`🔍 Searching for: ${doctorName}`)
   
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300))
-  
-  // Mock data - in a real extension this would come from an API
-  return {
-    rating: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3.0 and 5.0
-    reviewsCount: Math.floor(Math.random() * 50) + 5 // Random number of reviews
+  try {
+    // Make the API call to our backend
+    const response = await fetch(
+      `http://localhost:3000/api/doctor-rating?doctorName=${encodeURIComponent(doctorName)}&address=${encodeURIComponent(address)}`
+    )
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const ratingData = await response.json()
+    
+    // Cache the result
+    await chrome.storage.local.set({ [`${doctorName}-${address}`]: ratingData })
+    
+    return ratingData
+  } catch (error) {
+    console.error(`❌ Error fetching rating for ${doctorName}:`, error)
+    return {
+      rating: "N/A",
+      reviewsCount: 0
+    }
   }
 }
 

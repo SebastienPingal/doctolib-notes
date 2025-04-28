@@ -21,12 +21,13 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://*.doctolib.fr/*"
+    "https://*.doctolib.fr/*",
+    "http://localhost:3000/*"
   ],
   "content_scripts": [
     {
       "matches": ["https://*.doctolib.fr/*"],
-      "js": ["content.js"],
+      "js": ["config.js", "content.js"],
       "css": ["styles.css"]
     }
   ]
