@@ -4,7 +4,6 @@ const fetch = require('node-fetch')
 require('dotenv').config()
 
 const app = express()
-const port = process.env.PORT || 3000
 
 // Configure CORS to allow all origins
 app.use(cors({
@@ -78,6 +77,5 @@ app.get('/api/doctor-rating', async (req, res) => {
   }
 })
 
-app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`)
-}) 
+// Export the Express app for Vercel
+module.exports = app 
