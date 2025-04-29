@@ -62,7 +62,8 @@ app.get('/api/doctor-rating', async (req, res) => {
       console.log('✅ Found rating for:', doctorName, place.rating)
       return res.json({
         rating: place.rating.toFixed(1),
-        reviewsCount: place.user_ratings_total
+        reviewsCount: place.user_ratings_total,
+        placeId: place.place_id
       })
     }
     

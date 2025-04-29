@@ -141,35 +141,45 @@ async function fetchDoctorRating(doctorName, address) {
     }
 
     const ratingData = await response.json()
-
-    try {
-      if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) {
-        const key = `${doctorName}-${address}`
-        await browser.storage.local.set({ [key]: ratingData })
-        console.log(`📦 Rating cached for ${doctorName}`)
-
-        const storedData = await browser.storage.local.get(key)
-        console.log(`🔍 Verified stored data:`, storedData)
-      }
-      else if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        const key = `${doctorName}-${address}`  
-        await chrome.storage.local.set({ [key]: ratingData })
-        console.log(`📦 Rating cached for ${doctorName}`)
-
-        const storedData = await chrome.storage.local.get(key)
-        console.log(`🔍 Verified stored data:`, storedData)
-      }
-    } catch (storageError) {
-      console.warn('⚠️ Could not cache rating data:', storageError)
+    
+    // Add fallback URL if placeId is not provided
+    if (!ratingData.placeId && !ratingData.placeUrl) {
+      const searchQuery = encodeURIComponent(`${doctorName} ${address}`)
+      ratingData.placeUrl = `https://www.google.com/maps/search/${searchQuery}`
     }
 
+    saveRatingToStorage(doctorName, address, ratingData)
     return ratingData
   } catch (error) {
     console.error(`❌ Error fetching rating for ${doctorName}:`, error)
     return {
       rating: "N/A",
-      reviewsCount: 0
+      reviewsCount: 0,
+      placeUrl: `https://www.google.com/maps/search/${encodeURIComponent(doctorName)}`
     }
+  }
+}
+
+async function saveRatingToStorage(doctorName, address, ratingData) {
+  const key = `${doctorName}-${address}`
+  try {
+    if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) {
+      await browser.storage.local.set({ [key]: ratingData })
+      console.log(`📦 Rating cached for ${doctorName}`)
+
+      const storedData = await browser.storage.local.get(key)
+      console.log(`🔍 Verified stored data:`, storedData)
+    }
+
+    else if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      await chrome.storage.local.set({ [key]: ratingData })
+      console.log(`📦 Rating cached for ${doctorName}`)
+
+      const storedData = await chrome.storage.local.get(key)
+      console.log(`🔍 Verified stored data:`, storedData)
+    }
+  } catch (storageError) {
+    console.warn('⚠️ Could not cache rating data:', storageError)
   }
 }
 
@@ -181,6 +191,29 @@ function displayRatingBadge(ratingData) {
   const badge = document.createElement("div")
   badge.id = "doctonote-badge"
   badge.className = "doctonote-rating-badge"
+  badge.style.cursor = "pointer"
+
+  // Add click handler to open Google Maps reviews
+  badge.addEventListener("click", () => {
+    console.log("🔗 Opening Google Maps reviews for this doctor")
+    console.log("📊 Rating data:", ratingData)
+    
+    if (ratingData.placeId) {
+      const url = `https://www.google.com/maps/place/?q=place_id:${ratingData.placeId}`
+      console.log("🔗 Opening URL:", url)
+      window.open(url, "_blank")
+    } else if (ratingData.placeUrl) {
+      console.log("🔗 Opening place URL:", ratingData.placeUrl)
+      window.open(ratingData.placeUrl, "_blank")
+    } else if (ratingData.placeName) {
+      const searchQuery = encodeURIComponent(ratingData.placeName)
+      const url = `https://www.google.com/maps/search/${searchQuery}`
+      console.log("🔗 Opening search URL:", url)
+      window.open(url, "_blank")
+    } else {
+      console.warn("⚠️ No valid URL data found in rating:", ratingData)
+    }
+  })
 
   const ratingStars = document.createElement("div")
   ratingStars.className = "doctonote-stars"
@@ -229,6 +262,29 @@ function displayRatingBadge(ratingData) {
 function displaySearchResultRating(card, ratingData) {
   const badge = document.createElement("div")
   badge.className = "doctonote-rating-badge doctonote-search-badge"
+  badge.style.cursor = "pointer"
+  
+  // Make the badge clickable to open Google Maps reviews
+  badge.addEventListener("click", () => {
+    console.log("🔗 Opening Google Maps reviews for this doctor")
+    console.log("📊 Rating data:", ratingData)
+    
+    if (ratingData.placeId) {
+      const url = `https://www.google.com/maps/place/?q=place_id:${ratingData.placeId}`
+      console.log("🔗 Opening URL:", url)
+      window.open(url, "_blank")
+    } else if (ratingData.placeUrl) {
+      console.log("🔗 Opening place URL:", ratingData.placeUrl)
+      window.open(ratingData.placeUrl, "_blank")
+    } else if (ratingData.placeName) {
+      const searchQuery = encodeURIComponent(ratingData.placeName)
+      const url = `https://www.google.com/maps/search/${searchQuery}`
+      console.log("🔗 Opening search URL:", url)
+      window.open(url, "_blank")
+    } else {
+      console.warn("⚠️ No valid URL data found in rating:", ratingData)
+    }
+  })
 
   const ratingDisplay = document.createElement("div")
   ratingDisplay.className = "doctonote-search-rating"
