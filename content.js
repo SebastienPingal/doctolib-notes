@@ -1,7 +1,10 @@
 console.log("🔍 DoctoNote extension activated on Doctolib!")
 
+// Initialize immediately and also on DOMContentLoaded
+initDoctoNote()
 document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(initDoctoNote, 1000)
+  console.log("📄 DOMContentLoaded event fired")
+  initDoctoNote()
 })
 
 // URL change observer
@@ -9,6 +12,7 @@ let lastUrl = location.href
 new MutationObserver(() => {
   if (location.href !== lastUrl) {
     lastUrl = location.href
+    console.log("🔄 URL changed, reinitializing...")
     setTimeout(initDoctoNote, 1000)
   }
 }).observe(document, { subtree: true, childList: true })
@@ -20,7 +24,12 @@ new MutationObserver((mutations) => {
       for (const node of mutation.addedNodes) {
         if (node.nodeType === Node.ELEMENT_NODE &&
           (node.classList?.contains("search-result-card") ||
-            node.querySelector?.(".search-result-card"))) {
+            node.querySelector?.(".search-result-card") ||
+            node.classList?.contains("dl-profile-header-name") ||
+            node.querySelector?.(".dl-profile-header-name") ||
+            node.classList?.contains("dl-text") ||
+            node.querySelector?.(".dl-text"))) {
+          console.log("🔄 DOM changed with relevant elements, reinitializing...")
           setTimeout(initDoctoNote, 1000)
           return
         }
@@ -38,37 +47,32 @@ function initDoctoNote() {
     return
   }
 
-  const profileCard = document.querySelector(".dl-profile-card")
-  const doctorNameH1 = document.querySelector("h1")
-  if (profileCard && doctorNameH1) {
+  const doctorNameH1 = document.querySelector(".dl-profile-header-name")
+  const doctorAddress = document.querySelector(".mt-8.flex.items-start[data-test='location'] .dl-text")
+  if (doctorNameH1 && doctorAddress) {
     console.log("🩺 Processing doctor profile")
-    extractDoctorInfo()
+    processDoctorProfile(doctorNameH1, doctorAddress)
   }
 }
 
 // Extract doctor info from the profile page
-async function extractDoctorInfo() {
-  const nameElement = document.querySelector("h1")
-  if (!nameElement) return
-
-  const doctorName = nameElement.textContent.trim()
-  const specialty = document.querySelector("h2")?.textContent.trim() || ""
-  const address = document.querySelector(".dl-profile-card-address")?.textContent.trim() || ""
-
-  console.log(`👨‍⚕️ Doctor: ${doctorName}`)
-  console.log(`📍 Address: ${address}`)
+async function processDoctorProfile(doctorNameH1, doctorAddress) {
+  const doctorName = doctorNameH1.textContent.trim()
+  const address = doctorAddress.textContent.trim()
+  console.log("👨‍⚕️ Doctor name:", doctorName)
+  console.log("📍 Doctor address:", address)
 
   console.log(`🔍 Checking cache for ${doctorName}...`)
   const cachedRating = await getCachedRating(doctorName, address)
   if (cachedRating) {
     console.log(`🎁 Rating found in cache for ${doctorName}:`, cachedRating)
-    displayRatingBadge(cachedRating)
+    displayProfileRatingBadge(cachedRating)
     return
   }
 
   console.log(`🔄 No cached rating found, fetching from API...`)
   const rating = await fetchDoctorRating(doctorName, address)
-  displayRatingBadge(rating)
+  displayProfileRatingBadge(rating)
 }
 
 async function getCachedRating(doctorName, address) {
@@ -141,7 +145,7 @@ async function fetchDoctorRating(doctorName, address) {
     }
 
     const ratingData = await response.json()
-    
+
     // Add fallback URL if placeId is not provided
     if (!ratingData.placeId && !ratingData.placeUrl) {
       const searchQuery = encodeURIComponent(`${doctorName} ${address}`)
@@ -184,7 +188,7 @@ async function saveRatingToStorage(doctorName, address, ratingData) {
 }
 
 // Display the rating badge on the doctor profile page
-function displayRatingBadge(ratingData) {
+function displayProfileRatingBadge(ratingData) {
   const existingBadge = document.getElementById("doctonote-badge")
   if (existingBadge) existingBadge.remove()
 
@@ -197,7 +201,7 @@ function displayRatingBadge(ratingData) {
   badge.addEventListener("click", () => {
     console.log("🔗 Opening Google Maps reviews for this doctor")
     console.log("📊 Rating data:", ratingData)
-    
+
     if (ratingData.placeId) {
       const url = `https://www.google.com/maps/place/?q=place_id:${ratingData.placeId}`
       console.log("🔗 Opening URL:", url)
@@ -253,9 +257,9 @@ function displayRatingBadge(ratingData) {
   badge.appendChild(ratingText)
   badge.appendChild(attribution)
 
-  const targetElement = document.querySelector(".dl-profile-card")
+  const targetElement = document.querySelector(".dl-profile-wrapper.dl-profile-header-wrapper")
   if (targetElement) {
-    targetElement.insertAdjacentElement("afterbegin", badge)
+    targetElement.appendChild(badge)
   }
 }
 
@@ -263,12 +267,12 @@ function displaySearchResultRating(card, ratingData) {
   const badge = document.createElement("div")
   badge.className = "doctonote-rating-badge doctonote-search-badge"
   badge.style.cursor = "pointer"
-  
+
   // Make the badge clickable to open Google Maps reviews
   badge.addEventListener("click", () => {
     console.log("🔗 Opening Google Maps reviews for this doctor")
     console.log("📊 Rating data:", ratingData)
-    
+
     if (ratingData.placeId) {
       const url = `https://www.google.com/maps/place/?q=place_id:${ratingData.placeId}`
       console.log("🔗 Opening URL:", url)
