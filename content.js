@@ -13,7 +13,7 @@ new MutationObserver(() => {
   if (location.href !== lastUrl) {
     lastUrl = location.href
     console.log("🔄 URL changed, reinitializing...")
-    setTimeout(initDoctoNote, 1000)
+    initDoctoNote()
   }
 }).observe(document, { subtree: true, childList: true })
 
@@ -30,7 +30,7 @@ new MutationObserver((mutations) => {
             node.classList?.contains("dl-text") ||
             node.querySelector?.(".dl-text"))) {
           console.log("🔄 DOM changed with relevant elements, reinitializing...")
-          setTimeout(initDoctoNote, 1000)
+          initDoctoNote()
           return
         }
       }
@@ -61,6 +61,9 @@ async function processDoctorProfile(doctorNameH1, doctorAddress) {
   const address = doctorAddress.textContent.trim()
   console.log("👨‍⚕️ Doctor name:", doctorName)
   console.log("📍 Doctor address:", address)
+
+  // Show loading state immediately
+  displayProfileRatingBadge({ rating: "Loading...", reviewsCount: 0 })
 
   console.log(`🔍 Checking cache for ${doctorName}...`)
   const cachedRating = await getCachedRating(doctorName, address)
