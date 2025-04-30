@@ -15,11 +15,36 @@ function ensureDir(dir) {
   }
 }
 
+// Function to merge manifests
+function mergeManifests(baseManifest, browserManifest) {
+  return {
+    ...baseManifest,
+    ...browserManifest,
+    // Merge arrays if they exist in both manifests
+    permissions: [...new Set([...(baseManifest.permissions || []), ...(browserManifest.permissions || [])])],
+    content_scripts: browserManifest.content_scripts || baseManifest.content_scripts
+  }
+}
+
 // Build function
 function build() {
   // Create dist directories
   ensureDir('dist/chrome')
   ensureDir('dist/firefox')
+
+  // Read manifests
+  const baseManifest = JSON.parse(fs.readFileSync('manifest.base.json', 'utf8'))
+  const chromeManifest = JSON.parse(fs.readFileSync('manifest.chrome.json', 'utf8'))
+  const firefoxManifest = JSON.parse(fs.readFileSync('manifest.firefox.json', 'utf8'))
+
+  // Merge manifests
+  const mergedChromeManifest = mergeManifests(baseManifest, chromeManifest)
+  const mergedFirefoxManifest = mergeManifests(baseManifest, firefoxManifest)
+
+  // Write merged manifests
+  fs.writeFileSync('dist/chrome/manifest.json', JSON.stringify(mergedChromeManifest, null, 2))
+  fs.writeFileSync('dist/firefox/manifest.json', JSON.stringify(mergedFirefoxManifest, null, 2))
+  console.log('📄 Created merged manifests')
 
   // Copy common files
   const commonFiles = [
@@ -45,10 +70,6 @@ function build() {
       copyFile(file, `dist/firefox/${file}`)
     }
   })
-
-  // Copy browser-specific manifests
-  copyFile('manifest.chrome.json', 'dist/chrome/manifest.json')
-  copyFile('manifest.firefox.json', 'dist/firefox/manifest.json')
 
   console.log('✨ Build completed!')
   console.log('📦 Chrome extension is in: dist/chrome')

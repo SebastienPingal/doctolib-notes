@@ -1,34 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "DoctoNote",
-  "version": "1.0.0",
-  "description": "Affiche les notes Google Maps des médecins sur Doctolib",
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
+    "default_popup": "popup.html"
   },
-  "permissions": [
-    "activeTab",
-    "storage"
-  ],
   "host_permissions": [
     "https://*.doctolib.fr/*",
     "https://doctolib-notes.vercel.app/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": ["https://*.doctolib.fr/*"],
-      "js": ["config.js", "content.js"],
-      "css": ["styles.css"]
-    }
   ]
 } 
