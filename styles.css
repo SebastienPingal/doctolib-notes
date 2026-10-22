@@ -59,6 +59,9 @@
 
 /* Styles pour les badges dans les résultats de recherche */
 .doctonote-search-badge {
+  /* Stay above the card's full-size profile link overlay (z-10) so clicks reach the badge */
+  position: relative;
+  z-index: 20;
   margin: 8px 0;
   padding: 6px 10px;
   background-color: #effbff;

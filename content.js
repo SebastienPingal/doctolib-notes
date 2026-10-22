@@ -4,7 +4,10 @@ const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 // Firefox exposes the promise-based `browser`, Chrome MV3 a promise-based `chrome`
 const storage = (globalThis.browser ?? globalThis.chrome).storage.local
 
-const SEARCH_CARD_SELECTOR = ".search-result-card"
+// Search results: no stable card class anymore, so anchor on the doctor name (h2 inside
+// the profile link) and on the address row (location icon)
+const SEARCH_NAME_SELECTOR = "a[href] h2"
+const ADDRESS_ICON_SELECTOR = "svg[data-icon-name='regular/location-dot']"
 const PROFILE_NAME_SELECTOR = ".dl-profile-header-name"
 const PROFILE_ADDRESS_SELECTOR = "[data-test='location'] .dl-text"
 const PROFILE_BADGE_TARGET_SELECTOR = ".dl-profile-wrapper.dl-profile-header-wrapper"
@@ -26,9 +29,9 @@ scheduleInit()
 new MutationObserver(scheduleInit).observe(document.documentElement, { childList: true, subtree: true })
 
 function initDoctoNote() {
-  const searchResultCards = document.querySelectorAll(SEARCH_CARD_SELECTOR)
-  if (searchResultCards.length > 0) {
-    processSearchResults(searchResultCards)
+  const searchResults = findSearchResults()
+  if (searchResults.length > 0) {
+    processSearchResults(searchResults)
     return
   }
 
@@ -52,23 +55,45 @@ async function processDoctorProfile(doctorName, address) {
   displayProfileRatingBadge(rating, doctorName, address)
 }
 
-async function processSearchResults(cards) {
-  for (const card of cards) {
-    if (card.dataset.doctonote) continue
-    card.dataset.doctonote = "pending"
+// Returns [{ nameElement, addressRow }] for each result card that has both a name and an address
+function findSearchResults() {
+  const results = []
+  for (const nameElement of document.querySelectorAll(SEARCH_NAME_SELECTOR)) {
+    // Walk up from the name until reaching the card that also holds the address row
+    let card = nameElement.parentElement
+    while (card && card !== document.body && !card.querySelector(ADDRESS_ICON_SELECTOR)) {
+      card = card.parentElement
+    }
+    // Reached a container spanning several doctors: this h2 is not a result card name
+    if (!card || card.querySelectorAll(SEARCH_NAME_SELECTOR).length > 1) continue
+    const addressIcon = card?.querySelector(ADDRESS_ICON_SELECTOR)
+    const addressRow = addressIcon?.parentElement?.parentElement
+    if (addressRow) results.push({ nameElement, addressRow })
+  }
+  return results
+}
 
-    const nameElement = card.querySelector("h2")
-    if (!nameElement) continue
+function extractDoctorName(nameElement) {
+  // Drop screen-reader suffixes like ", Consultation vidéo disponible"
+  const clone = nameElement.cloneNode(true)
+  clone.querySelectorAll(".sr-only").forEach(el => el.remove())
+  return clone.textContent.trim()
+}
 
-    const doctorName = nameElement.textContent.trim()
-    const address = Array.from(card.querySelectorAll(".dl-text-neutral-130"))
-      .slice(0, 2)
+async function processSearchResults(results) {
+  for (const { nameElement, addressRow } of results) {
+    if (nameElement.dataset.doctonote) continue
+    nameElement.dataset.doctonote = "pending"
+
+    const doctorName = extractDoctorName(nameElement)
+    const address = Array.from(addressRow.querySelectorAll("p"))
       .map(el => el.textContent.trim())
+      .filter(Boolean)
       .join(", ")
 
     const rating = await getRating(doctorName, address)
-    displaySearchResultRating(card, rating, doctorName, address)
-    card.dataset.doctonote = "done"
+    displaySearchResultRating(addressRow, rating, doctorName, address)
+    nameElement.dataset.doctonote = "done"
   }
 }
 
@@ -174,7 +199,7 @@ function displayProfileRatingBadge(ratingData, doctorName, address) {
   targetElement.appendChild(badge)
 }
 
-function displaySearchResultRating(card, ratingData, doctorName, address) {
+function displaySearchResultRating(addressRow, ratingData, doctorName, address) {
   const badge = document.createElement("div")
   badge.className = "doctonote-rating-badge doctonote-search-badge"
   badge.addEventListener("click", (event) => {
@@ -198,9 +223,5 @@ function displaySearchResultRating(card, ratingData, doctorName, address) {
   ratingDisplay.append(starIcon, ratingText)
   badge.appendChild(ratingDisplay)
 
-  const insertPoint = card.querySelector(".mt-8")
-    ?? card.querySelector(".dl-justify-center")
-    ?? card.querySelector(".dl-card-content")
-  if (insertPoint) insertPoint.insertAdjacentElement("beforebegin", badge)
-  else card.appendChild(badge)
+  addressRow.insertAdjacentElement("beforebegin", badge)
 }
