@@ -5,12 +5,16 @@
   "scripts": {
     "build": "node build.js",
     "build:chrome": "node build.js chrome",
-    "build:firefox": "node build.js firefox"
+    "build:firefox": "node build.js firefox",
+    "zip": "node build.js && node pack.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "node-fetch": "^2.6.1",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "archiver": "^7.0.1"
   }
-} 
+}

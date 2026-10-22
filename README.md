@@ -17,6 +17,8 @@ Les manifests sont générés par navigateur (Chrome en Manifest V3, Firefox en 
 node build.js
 ```
 
+Pour publier, `pnpm zip` construit puis crée `dist/doctonote-chrome-<version>.zip` (Chrome Web Store) et `dist/doctonote-firefox-<version>.zip` (addons.mozilla.org).
+
 ### Chrome
 
 1. Ouvrez `chrome://extensions/` et activez le "Mode développeur"

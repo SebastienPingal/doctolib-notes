@@ -28,7 +28,9 @@ function mergeManifests(baseManifest, browserManifest) {
 
 // Build function
 function build() {
-  // Create dist directories
+  // Start from clean dist directories so stale files never get packed
+  fs.rmSync('dist/chrome', { recursive: true, force: true })
+  fs.rmSync('dist/firefox', { recursive: true, force: true })
   ensureDir('dist/chrome')
   ensureDir('dist/firefox')
 
