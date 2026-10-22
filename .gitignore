@@ -1,6 +1,3 @@
-# Environment variables
-config.js
-
 # IDE files
 .vscode/
 .idea/

@@ -49,7 +49,6 @@ function build() {
   // Copy common files
   const commonFiles = [
     'content.js',
-    'config.js',
     'popup.html',
     'popup.js',
     'styles.css',

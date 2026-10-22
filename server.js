@@ -16,13 +16,8 @@ app.use(express.json())
 
 app.get('/api/doctor-rating', async (req, res) => {
   try {
-    console.log('🔍 Received request for doctor rating:', {
-      doctorName: req.query.doctorName,
-      address: req.query.address,
-      headers: req.headers
-    })
-    
     const { doctorName, address } = req.query
+    console.log('🔍 Received request for doctor rating:', { doctorName, address })
     
     if (!doctorName || !address) {
       console.log('❌ Missing required parameters')
@@ -50,27 +45,24 @@ app.get('/api/doctor-rating', async (req, res) => {
     }
     
     const data = await response.json()
-    console.log('📦 Google Maps API response:', data)
-    
+
     if (data.error_message) {
-      console.error('❌ Google Maps API error:', data.error_message)
+      console.error('❌ Google Maps API error:', data.status, data.error_message)
       return res.status(500).json({ error: 'Google Maps API error' })
     }
-    
-    if (data.results && data.results.length > 0) {
-      const place = data.results[0]
-      console.log('✅ Found rating for:', doctorName, place.rating)
-      return res.json({
-        rating: place.rating.toFixed(1),
-        reviewsCount: place.user_ratings_total,
-        placeId: place.place_id
-      })
+
+    const place = data.results?.[0]
+    if (!place) {
+      console.log('⚠️ No results found for:', doctorName)
+      return res.json({ rating: "N/A", reviewsCount: 0 })
     }
-    
-    console.log('⚠️ No results found for:', doctorName)
+
+    // A matching place may exist without any review
+    console.log('✅ Found place for:', doctorName, place.name, place.rating)
     return res.json({
-      rating: "N/A",
-      reviewsCount: 0
+      rating: typeof place.rating === 'number' ? place.rating : "N/A",
+      reviewsCount: place.user_ratings_total ?? 0,
+      placeId: place.place_id
     })
   } catch (error) {
     console.error('❌ Error:', error)

@@ -11,20 +11,23 @@ DoctoNote est une extension pour Chrome et Firefox qui affiche les notes Google 
 
 ## Installation
 
+Les manifests sont générés par navigateur (Chrome en Manifest V3, Firefox en Manifest V2) :
+
+```bash
+node build.js
+```
+
 ### Chrome
 
-1. Téléchargez ou clonez ce dépôt sur votre ordinateur
-2. Ouvrez Chrome et accédez à `chrome://extensions/`
-3. Activez le "Mode développeur" (en haut à droite)
-4. Cliquez sur "Charger l'extension non empaquetée"
-5. Sélectionnez le dossier contenant les fichiers de l'extension
+1. Ouvrez `chrome://extensions/` et activez le "Mode développeur"
+2. Cliquez sur "Charger l'extension non empaquetée"
+3. Sélectionnez le dossier `dist/chrome`
 
 ### Firefox
 
-1. Téléchargez ou clonez ce dépôt sur votre ordinateur
-2. Ouvrez Firefox et accédez à `about:debugging#/runtime/this-firefox`
-3. Cliquez sur "Charger un module temporaire..."
-4. Naviguez jusqu'au dossier de l'extension et sélectionnez le fichier `manifest.json`
+1. Ouvrez `about:debugging#/runtime/this-firefox`
+2. Cliquez sur "Charger un module temporaire..."
+3. Sélectionnez `dist/firefox/manifest.json`
 
 ## Utilisation
 
@@ -32,34 +35,22 @@ DoctoNote est une extension pour Chrome et Firefox qui affiche les notes Google 
 2. Naviguez jusqu'à la page de recherche de médecins ou un profil médecin
 3. Les notes Google Maps s'afficheront automatiquement sur la page
 
-## Remarques importantes
+## Fonctionnement
 
-Cette version de l'extension utilise des données fictives pour simuler les notes des médecins. Une implémentation complète nécessiterait:
+- `content.js` est injecté sur `doctolib.fr`, repère les fiches médecin (résultats de recherche et profil) et interroge le backend.
+- `server.js` (déployé sur Vercel, `https://doctolib-notes.vercel.app`) appelle l'API Google Places Text Search avec `GOOGLE_MAPS_API_KEY`.
+- Les notes sont mises en cache 7 jours dans `storage.local`.
 
-1. Un serveur backend pour:
-   - Rechercher les informations des médecins sur Google Maps
-   - Stocker les données en cache pour améliorer les performances
+Les sélecteurs CSS de Doctolib sont regroupés en tête de `content.js` : si Doctolib change son DOM, c'est là qu'il faut les mettre à jour.
 
-2. Mise en place d'une API Google Maps Places pour obtenir les véritables données de notation
+## Structure des fichiers
 
-## Développement
-
-### Structure des fichiers
-
-- `manifest.json`: Configuration de l'extension
-- `content.js`: Script injecté dans les pages Doctolib
-- `popup.html`: Interface utilisateur de l'extension
-- `popup.js`: Logique de l'interface utilisateur
-- `styles.css`: Styles pour les éléments injectés
-- `icons/`: Dossier contenant les icônes de l'extension
-
-### Amélioration possibles
-
-- Ajout d'un système de cache local pour stocker les notes déjà consultées
-- Implémentation d'un backend pour récupérer les véritables notes depuis Google Maps
-- Ajout de fonctionnalités de filtrage par note minimale
-- Support pour d'autres plateformes de prise de rendez-vous médicaux
-- Amélioration de la détection des pages de recherche différentes
+- `manifest.base.json` + `manifest.chrome.json` / `manifest.firefox.json` : fusionnés par `build.js`
+- `content.js` : script injecté dans les pages Doctolib
+- `popup.html` / `popup.js` : popup de l'extension
+- `styles.css` : styles des badges injectés
+- `server.js` / `vercel.json` : backend
+- `icons/` : icônes de l'extension
 
 ## Licence
 
